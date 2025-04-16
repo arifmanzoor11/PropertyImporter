@@ -31,7 +31,7 @@ function register_properties_post_type() {
           
         // This is where we add taxonomies to our CPT
         'taxonomies'         => array( 'post_tag', 'property_type' ), // Added 'property_type' taxonomy
-        'supports'           => array( 'title', 'editor', 'custom-fields', 'thumbnail' ) // Added 'thumbnail' support
+        // 'supports'           => array( 'title', 'editor', 'custom-fields', 'thumbnail' ) // Added 'thumbnail' support
     ));
 
     // Register the custom taxonomy 'property_type'
