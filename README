@@ -1,0 +1,33 @@
+# Property Importer Plugin
+
+## Overview
+The Property Importer Plugin is designed to facilitate the import of property data into your WordPress website. This plugin integrates seamlessly with your WordPress installation and provides an easy-to-use interface for managing property imports.
+
+## Features
+- Import property data from various sources.
+- Map data fields to match your WordPress database structure.
+- Schedule automated imports.
+- Error logging and reporting for failed imports.
+- Support for custom post types and taxonomies.
+
+## Installation
+1. Download the plugin files.
+2. Upload the plugin folder to the `/wp-content/plugins/` directory.
+3. Activate the plugin through the 'Plugins' menu in WordPress.
+
+## Usage
+1. Navigate to the **Property Importer** menu in your WordPress admin dashboard.
+2. Configure the import settings, including data source and field mappings.
+3. Start the import process and monitor progress.
+4. Review imported properties in the designated post type or taxonomy.
+
+## Requirements
+- WordPress 5.0 or higher.
+- PHP 7.4 or higher.
+- MySQL 5.6 or higher.
+
+## Support
+For support, please visit the [documentation page](https://example.com/documentation) or contact our support team at support@example.com.
+
+## License
+This plugin is licensed under the GPLv2 or later. See the LICENSE file for details.
