@@ -92,13 +92,19 @@ function manage_import_import() {
 add_action( 'admin_enqueue_scripts', 'easy_propertyimport_load_admin_style' );
 function easy_propertyimport_load_admin_style() {
     $dir = plugin_dir_url(__FILE__);
-    wp_enqueue_style( 'easy-propertyimport_url-admin', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', false, '1.0.0' );
+    wp_enqueue_style( 'easy-propertyimport_url-admin', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), // No dependencies
+    '4.1.0-rc.0' );
     wp_enqueue_style( 'easy-propertyimport_url-admin' );
-    wp_register_script( 'easy-propertyimport_url-admin', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', false, true );
+    wp_register_script( 'easy-propertyimport_url-admin', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array('jquery'), // Depends on jQuery
+    '4.1.0-rc.0',
+    true );
     wp_enqueue_script( 'easy-propertyimport_url-admin' );
-    wp_enqueue_style( 'easy-propertyimport-admin', $dir . 'admin/assets/css/adminPropertyImport.css', false, '1.0.0' );
+    wp_enqueue_style( 'easy-propertyimport-admin', $dir . 'admin/assets/css/adminPropertyImport.css',  array(),
+    '1.0.0' );
     wp_enqueue_style( 'easy-propertyimport-admin' );
-    wp_register_script('adminProperty-Import-js', $dir . 'admin/assets/js/adminPropertyImport.js', false, true );
+    wp_register_script('adminProperty-Import-js', $dir . 'admin/assets/js/adminPropertyImport.js', array('jquery', 'select2-js'),
+    '1.0.0',
+    true );
     wp_enqueue_script( 'adminProperty-Import-custom' );
     wp_enqueue_media();
     wp_enqueue_script('jquery-ui-tabs');
