@@ -2,11 +2,6 @@
 if ( ! current_user_can( 'manage_options' ) ) {
     return;
 }
-
-if ( isset( $_POST['import_properties'] ) ) {
-    import_properties_from_api();
-}
-
 function enqueue_properties_import_script() {
     // Enqueue the script
     wp_enqueue_script('properties-import-script', get_template_directory_uri() . '/js/properties-import.js', array('jquery'), null, true);
@@ -155,48 +150,9 @@ add_action('admin_enqueue_scripts', 'enqueue_properties_import_script');
                                 success: function(response) {
                                     jQuery("#loading").hide();
                                     if (response) {
-                                        try {
-                                            let statusClass = '';
-                                            let message = '';
-                                            
-                                            // Handle response object
-                                            if (typeof response === 'object') {
-                                                if (response.success) {
-                                                    statusClass = 'success';
-                                                    message = response.data.message;
-                                                    
-                                                    // Add import stats if available
-                                                    if (response.data.imported_count !== undefined || response.data.updated_count !== undefined) {
-                                                        message += '<div class="import-stats">';
-                                                        if (response.data.imported_count !== undefined) {
-                                                            message += `<span>New: ${response.data.imported_count}</span>`;
-                                                        }
-                                                        if (response.data.updated_count !== undefined) {
-                                                            message += `<span>Updated: ${response.data.updated_count}</span>`;
-                                                        }
-                                                        message += '</div>';
-                                                    }
-                                                } else {
-                                                    statusClass = 'error';
-                                                    message = response.data || 'Import failed';
-                                                }
-                                            } else {
-                                                message = response;
-                                            }
-
-                                            jQuery("#response").append(
-                                                `<div class="notice notice-${statusClass} import-entry">
-                                                    <p><strong>Entry ${index + 1}:</strong> ${message}</p>
-                                                </div>`
-                                            );
-                                        } catch (e) {
-                                            console.error('Error parsing response:', e);
-                                            jQuery("#response").append(
-                                                `<div class="notice notice-error import-entry">
-                                                    <p><strong>Entry ${index + 1}:</strong> Error processing response</p>
-                                                </div>`
-                                            );
-                                        }
+                                        jQuery("#response").append('<p>Entry ' + (index + 1) + ': ' + response.data + '</p>');
+                                    } else {
+                                        alert('Error with entry ' + (index + 1));
                                     }
                                 },
                                 error: function(xhr, status, error) {
