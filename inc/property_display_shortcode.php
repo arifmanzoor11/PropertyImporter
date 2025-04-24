@@ -170,22 +170,15 @@ function property_display_shortcode($atts)
     $current_min_size = isset($_GET['min_size']) ? intval($_GET['min_size']) : '';
     $current_max_size = isset($_GET['max_size']) ? intval($_GET['max_size']) : '';
     $atts['show_filters'] = filter_var($atts['show_filters'], FILTER_VALIDATE_BOOLEAN);
-  
-    ob_start();
-    
-    ?>
+    ob_start(); ?>
     
     <div class="property-display-container">
         <?php if ($atts['show_filters']): ?>
-
             <div class="property-filters">
                 <div style="text-align: right;margin-bottom: 10px;">
                     <button type="button" class="reset_filter" onclick="resetFilters()">Reset Search</button>
                 </div>
                 <div class="select-container">
-
-                    
-
                     <select name="max_size" class="dropdown-property filter-select">
                         <option value="">Max Size</option>
                         <?php
@@ -211,12 +204,21 @@ function property_display_shortcode($atts)
                     <select name="min_size" class="dropdown-property filter-select">    
                         <option value="">Min Size</option>
                         <?php
-                        $size_options = array(0, 1000, 2500, 5000, 10000);
-                        foreach ($size_options as $size) {
+                        $size_options = array(0, 1000, 2500, 5000, 10000, 999999);
+                        $size_labels = array(
+                            '0 sq ft',
+                            '1,000 sq ft',
+                            '2,500 sq ft',
+                            '5,000 sq ft',
+                            '10,000 sq ft',
+                            'Over 10,000 sq ft'
+                        );
+                        foreach ($size_options as $index => $size) {
                             printf(
-                                '<option value="%1$d" %2$s>%1$d sq ft</option>',
+                                '<option value="%d" %s>%s</option>',
                                 $size,
-                                selected($current_min_size, $size, false)
+                                selected($current_min_size, $size, false),
+                                $size_labels[$index]
                             );
                         }
                         ?>
@@ -297,41 +299,50 @@ function property_display_shortcode($atts)
                     $has_active_filters = true;
                 }
             }
-            
-            // Handle size taxonomy filtering based on min_size and max_size
+
             if (!empty($current_min_size) || !empty($current_max_size)) {
                 $has_active_filters = true;
                 
-                // Get all size taxonomy terms
-                $size_terms = get_terms(array(
-                    'taxonomy' => 'size',
-                    'hide_empty' => false,
+
+                // Query all posts that have the Dimension field
+                $all_size_posts = get_posts(array(
+                    'post_type'      => 'property',
+                    'posts_per_page' => -1,
+                    'post_status'    => 'publish',
+                    'meta_key'       => 'Size',
+                    'fields'         => 'ids',
                 ));
-                
-                $matched_term_ids = array();
-                
-                foreach ($size_terms as $term) {
-                    // Extract numeric value from the term name
-                    if (preg_match('/(\d+)/', $term->name, $matches)) {
-                        $size_value = intval($matches[1]);
-                        
-                        // Check if size matches min and max criteria
-                        if ((!$current_min_size || $size_value >= $current_min_size) && 
-                            (!$current_max_size || $size_value <= $current_max_size)) {
-                            $matched_term_ids[] = $term->term_id;
+               
+                $matched_post_ids = [];
+                foreach ($all_size_posts as $post_id) {
+                    // echo $post_id;
+                    $dimension_data_serialized = get_post_meta($post_id, 'Size', true);
+                    $dimension_data = maybe_unserialize($dimension_data_serialized);
+                  
+                    if (is_array($dimension_data)) {
+                        $min = isset($dimension_data['MinSize']) ? intval($dimension_data['MinSize']) : 0;
+                        $max = isset($dimension_data['MaxSize']) ? intval($dimension_data['MaxSize']) : 0;
+            
+                        $is_match = true;
+            
+                        if (!empty($current_min_size) && $max < $current_min_size) {
+                            $is_match = false;
+                        }
+            
+                        if (!empty($current_max_size) && $min > $current_max_size) {
+                            $is_match = false;
+                        }
+            
+                        if ($is_match) {
+                            $matched_post_ids[] = $post_id;
                         }
                     }
                 }
-                
-                if (!empty($matched_term_ids)) {
-                    $tax_query[] = array(
-                        'taxonomy' => 'size',
-                        'field' => 'term_id',
-                        'terms' => $matched_term_ids,
-                        'operator' => 'IN'
-                    );
-                    $has_tax_query = true;
-                }
+               
+                // If we found matching post IDs, apply them to the main query
+                if (!empty($matched_post_ids)) {
+                    $args['post__in'] = $matched_post_ids;
+                } 
             }
             
             // Add sorting
@@ -389,7 +400,7 @@ function property_display_shortcode($atts)
                 render_taxonomy_blocks($term_ids);
             } 
             else { 
-                $query = new WP_Query($args);
+                 $query = new WP_Query($args);
                 if ($query->have_posts()): ?>
                 <?php if($atts['slider']) : ?>
                     <div class="slider">

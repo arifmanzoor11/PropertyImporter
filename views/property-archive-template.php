@@ -2,7 +2,7 @@
 get_header(); // Include the header
 ?>
 <div id="site-content">
-<?php echo do_shortcode('[rev_slider alias="slider-1-11"][/rev_slider]') ?>
+<?php echo do_shortcode('[rev_slider alias="management-1"][/rev_slider]') ?>
 <br>
 <?php if ( have_posts() ) : ?>
 <div class="container">
