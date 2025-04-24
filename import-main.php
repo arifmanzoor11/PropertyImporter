@@ -1,34 +1,48 @@
 <?php
-
 function get_bearer_token() {
-    global $clientid, $clientsecret ;
-    $token_uri = get_option('auto_import_token_url', '');
+    $debug = [];
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        error_log('Bearer token request must be a POST method.');
+        error_log('[Bearer Token] Request must be a POST method.');
         return false;
     }
+    // Allow overrides via POST for testing
+
+    $token_url = get_option('auto_import_token_url', '');
+    $client_id =  get_option('auto_import_client_id', '');;
+    $client_secret =  get_option('auto_import_client_secret', '');
 
     $grant_type = 'client_credentials';
-    $token_url = $token_uri;
 
-    // Use wp_remote_post to send a POST request
+    // Validate required values
+    if (empty($token_url) || empty($client_id) || empty($client_secret)) {
+        error_log('[Bearer Token] Missing required credentials or token URL.');
+        return false;
+    }
+    $debug[] = 'Bearer token retrieved.';
+    
+    // Send request
     $response = wp_remote_post($token_url, array(
         'body' => array(
-            'client_id' => $clientid,
-            'client_secret' => $clientsecret,
+            'client_id' => $client_id,
+            'client_secret' => $client_secret,
             'grant_type' => $grant_type,
         ),
     ));
 
     if (is_wp_error($response)) {
+        error_log('[Bearer Token] WP Error: ' . $response->get_error_message());
         return false;
     }
 
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body, true);
 
+    // Log and return token or failure
     if (isset($data['access_token'])) {
+        error_log('[Bearer Token] Access token received successfully.');
         return $data['access_token'];
+    } else {
+        error_log('[Bearer Token] Response missing access_token: ' . $body);
     }
 
     return false;
@@ -40,34 +54,57 @@ function download_and_import_properties_file() {
     global $wpdb;
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        error_log('Property import request must be a POST method.');
-        return;
+        error_log('[Property Import] Request must be POST.');
+        return 'Error: Invalid request method. Please use POST.';
     }
 
-    // Get Bearer Token
+    // Step 1: Get Bearer Token
     $bearer_token = get_bearer_token();
     if (!$bearer_token) {
-        error_log('Failed to retrieve Bearer token');
-        return;
+        error_log('[Property Import] Failed to retrieve Bearer token.');
+        return 'Error: Could not retrieve Bearer token.';
     }
 
-    // Define parameters for the API request
+    // Step 2: Define default parameters
     $parameters = define_parameters();
 
-    // Make the API request
-    $response = make_api_request($bearer_token, $parameters);
-    if (is_wp_error($response)) {
-        return; // Error logged in make_api_request
+    // Step 3: Allow testing with POST parameter overrides
+    if (!empty($_POST['override_params'])) {
+        $override_data = json_decode(stripslashes($_POST['override_params']), true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $parameters = array_merge($parameters, $override_data);
+            error_log('[Property Import] Parameters overridden for testing: ' . print_r($parameters, true));
+        } else {
+            error_log('[Property Import] Invalid JSON in override_params: ' . $_POST['override_params']);
+            return 'Error: Invalid override_params JSON.';
+        }
     }
 
-    // Process the response
+    // Step 4: Make the API request
+    $response = make_api_request($bearer_token, $parameters);
+    if (is_wp_error($response)) {
+        error_log('[Property Import] API request failed: ' . $response->get_error_message());
+        return 'Error: API request failed.';
+    }
+
+    // Step 5: Process response and save file
     $file_path = process_response($response, $wpdb);
+    if (!$file_path || !file_exists($file_path)) {
+        error_log('[Property Import] Failed to process response or file not found.');
+        return 'Error: Could not process API response or locate file.';
+    }
 
-    // Automatically trigger the properties import after file download
-    trigger_import_process($file_path, $wpdb);
+    // Step 6: Trigger import
+    $import_result = trigger_import_process($file_path, $wpdb);
+    if (!$import_result) {
+        error_log('[Property Import] Import process failed.');
+        return 'Error: Import process could not be triggered.';
+    }
 
-    return 'Property feed downloaded and import process started.';
+    error_log('[Property Import] Import successfully triggered.');
+    return 'Success: Property feed downloaded and import process started.';
 }
+
 // Function to define API request parameters
 function define_parameters() {
     // Get the EndIndex value
@@ -346,6 +383,7 @@ function onImportComplete(import_id, imported_count, updated_count) {
 
 // Handle the manual import via AJAX POST request
 function manual_properties_import() {
+
     // Ensure it's a POST request
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         wp_send_json_error(array('message' => 'Invalid request method. Please use POST.'));

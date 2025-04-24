@@ -25,6 +25,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set the first tab and pane as active by default
     tabLinks[0].click();
 });
-
-
-

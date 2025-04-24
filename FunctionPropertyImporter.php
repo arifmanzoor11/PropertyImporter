@@ -2,7 +2,7 @@
 /*
 Plugin Name: Property Importer
 Description: Imports properties from an external API into a custom post type in WordPress.
-Version: 2.0
+Version: 2.4.4
 Author: Arif M.
 */
 // Prevent direct access to the file
@@ -68,10 +68,10 @@ include_once(plugin_dir_path(__FILE__) . 'schedule-task.php');
 
 function properties_import_menu() {
     // Add Import Properties page
-    add_menu_page( 'PI Dashbaord', 'PI Dashbaord', 'manage_options', 'import-properties', 'import_properties_page','dashicons-admin-site-alt' );
+    add_menu_page( 'PI Dashboard', 'PI Dashboard', 'manage_options', 'import-properties', 'import_properties_page','dashicons-admin-site-alt' );
     // Add Delete Properties submenu under Import Properties
     add_submenu_page( 'import-properties', 'Manually Import', 'Manually Import', 'manage_options', 'manually-import', 'manage_import_import' );
-    add_submenu_page( 'import-properties', 'Auto Import(Test)', 'Auto Import(Test)', 'manage_options', 'auto-import', 'manage_auto_import' );
+    add_submenu_page( 'import-properties', 'Auto Import', 'Auto Import', 'manage_options', 'auto-import', 'manage_auto_import' );
     add_submenu_page( 'import-properties', 'Settings', 'Settings', 'manage_options', 'settings', 'manage_auto_import_settings' );
     add_submenu_page( 'import-properties', 'Manage Import', 'Manage Import', 'manage_options', 'manage-import', 'manage_import_page' );
     add_submenu_page( 'import-properties', 'Delete All Properties', 'Delete All Properties', 'manage_options', 'delete-properties', 'delete_properties_page' );
@@ -119,6 +119,7 @@ function easy_propertyimport_load_admin_style() {
 }
 
 function enqueue_property_styles() {
+
     // Check if we're on the 'property' custom post type archive or single page
     if (is_post_type_archive('property') || is_singular('property')) {
         $dir = plugin_dir_url(__FILE__);
@@ -133,6 +134,9 @@ function enqueue_property_styles() {
         wp_enqueue_style('property-styles', $dir . 'assets/css/property-styles.css', array(), null, 'all');
         wp_enqueue_script('property-import-js', $dir . 'assets/js/propertyImport.js', array('jquery', 'select2'), null, true);
     }
+        wp_enqueue_style('property-shortcode-styles', plugin_dir_url(__FILE__) . 'assets/css/property-shortcode.css', array(), null, 'all');
+        wp_enqueue_script('property-import-shortcode-js', plugin_dir_url(__FILE__) . 'assets/js/property-import-shortcode.js', array(), null, true);
+
 }
 
 add_action('wp_enqueue_scripts', 'enqueue_property_styles', 20);
@@ -228,3 +232,92 @@ add_action('admin_enqueue_scripts', 'enqueue_property_type_image_script');
 // Add this code after the existing functions
 include_once(plugin_dir_path(__FILE__) . 'inc/property_display_shortcode.php');
 
+
+
+add_filter('redirect_canonical', 'disable_redirect_on_custom_page');
+
+function disable_redirect_on_custom_page($redirect_url) {
+    if (is_front_page()) {
+            return false;
+    }
+    return $redirect_url;
+}
+
+add_action('wp_footer', 'custom_homepage_filter_script');
+function custom_homepage_filter_script() {
+    // Get the front page slug and URL
+    $front_page_id = get_option('page_on_front');
+    $front_page_slug = get_post_field('post_name', $front_page_id);
+    $homepage_url = home_url($front_page_slug);
+    ?>
+    <script>
+    jQuery(document).ready(function ($) {
+        const returnUrl = sessionStorage.getItem('returnToSearchUrl');
+
+        if (returnUrl) {
+            // Show the button if return URL exists
+            $('.back-to-search').show().on('click', function (e) {
+                e.preventDefault();
+                window.location.href = returnUrl;
+            });
+        } else {
+            // Hide the button just to be safe
+            $('.back-to-search').hide();
+        }
+
+        const isSinglePage = $('body').hasClass('single');
+        const isFrontPage = $('body').hasClass('home');
+        const homepageUrl = '<?php echo esc_url($homepage_url); ?>';
+
+        // Restore scroll position if it exists
+        const scrollY = sessionStorage.getItem('scrollPos');
+        if (scrollY) {
+            window.scrollTo(0, parseInt(scrollY));
+            sessionStorage.removeItem('scrollPos');
+        }
+
+        $('.filter-select').on('change', function () {
+            const paramName = $(this).attr('name');
+
+            const paramValue = $(this).val();
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (paramValue) {
+                urlParams.set(paramName, paramValue);
+            } else {
+                urlParams.delete(paramName);
+            }
+
+            let newUrl = isFrontPage ? homepageUrl : window.location.pathname;
+
+            if (urlParams.toString()) {
+                newUrl += '?' + urlParams.toString();
+            }
+
+            // Save scroll position before redirect
+            sessionStorage.setItem('scrollPos', window.scrollY); // Store scrolled position
+            sessionStorage.setItem('returnToSearchUrl', newUrl); //  Store the filtered URL
+
+            // Navigate to new URL
+            window.location.href = newUrl;
+
+        });
+        $('.filter-term').on('click', function () {
+            const paramSlug = $(this).attr('href');
+                 // Save scroll position before redirect
+            sessionStorage.setItem('scrollPos', window.scrollY); // Store scrolled position
+            sessionStorage.setItem('returnToSearchUrl', paramSlug); //  Store the filtered URL
+
+        });
+
+         // If on single page, update "Back to Search" button
+        if (isSinglePage) {
+            const returnUrl = sessionStorage.getItem('returnToSearchUrl');
+            if (returnUrl) {
+                $('.back-to-search').attr('href', returnUrl);
+            }
+        }
+    });
+    </script>
+    <?php
+}

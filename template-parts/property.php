@@ -1,23 +1,41 @@
-
-<div class="col-md-<?php echo $atts['column'] ?> mb-4">
+<div class="col-xl-<?php echo $atts['column'] ?> col-lg-6 mb-4">
     <div class="property-card">
         <div class="property-content">
       <a style="text-decoration:none" href="<?php the_permalink(); ?>">
         <?php $photo_url = get_post_meta(get_the_ID(), 'first_image', true); ?>
-        <div style="background: url('<?php echo esc_url($photo_url); ?>'); background-size: cover; background-position: center; height: 320px;"></div>
-                            
-            <?php $terms = get_the_terms(get_the_ID(), 'location');
+        <div style="background: url('<?php echo esc_url($photo_url); ?>'); background-size: cover; background-position: center; height: 320px;"></div>   
+       
+        <?php $terms = get_the_terms(get_the_ID(), 'location');
                 if (!empty($terms) && !is_wp_error($terms)) {
                     echo '<p style="color:#000; margin-bottom:5px; background:#009fc2;padding:10px;color:#fff; margin-bottom:5px">' . esc_html($terms[0]->name) . '</p>';
             } ?>
-            <?php $size_data = get_post_meta(get_the_ID(), 'Size', true);
+             <div class="text-container">
+            <?php 
+            $size_data = get_post_meta(get_the_ID(), 'Size', true);
             if (is_serialized($size_data)) {
                 $size_data = unserialize($size_data);
             }
-            if (is_array($size_data)) {
-                echo '<p style="color:#000; margin-bottom:5px;">' . esc_html($size_data['TotalSize']) . ' ' . esc_html($size_data['Dimension']['Name']) . '</p>';
+            
+            // Handle custom display for Min/Max Size
+            $min = isset($size_data['MinSize']) && !empty($size_data['MinSize']) ? $size_data['MinSize'] : null;
+            $max = isset($size_data['MaxSize']) && !empty($size_data['MaxSize']) ? $size_data['MaxSize'] : null;
+            
+            $size_label = '';
+            
+            if ($min && $max) {
+                $size_label = ($min == $max) ? $max : "$min - $max";
+            } elseif ($max) {
+                $size_label = $max;
+            } elseif ($min) {
+                $size_label = $min;
             }
-
+            
+            if ($size_label) {
+                echo '<p style="color:#000; margin-bottom:5px;">' . esc_html($size_label) . ' ' . $dimension_name . ' sq ft</p>';
+            }
+            if (is_array($size_data)) {
+               // echo '<p style="color:#000; margin-bottom:5px;">Total: ' . esc_html($size_data['TotalSize']) . ' ' . esc_html($size_data['Dimension']['Name']) . '</p>';
+            }
             $bullets_data = get_post_meta(get_the_ID(), 'Bullets', true);
             $unserialized_bullets = maybe_unserialize($bullets_data);
             if (!empty($unserialized_bullets) && is_array($unserialized_bullets)) {
@@ -46,8 +64,9 @@
             <?php endif; ?>
             </a>
             <a style="background-color: #009fc2; border-color: #009fc2;
-            color: #ffffff; padding: 5px 15px;margin: 0 0 20px;
+            color: #ffffff; padding: 5px 15px;margin: 0 0 10px;
             border-radius: 3px;" href="<?php the_permalink(); ?>" class="btn btn-primary">View Details</a>
+            </div>
         </div>
     </div>
 </div>

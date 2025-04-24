@@ -307,3 +307,5 @@ a.property-two-button {
     opacity: 0.5;
     pointer-events: none;
 }
+.back-to-search{display: inline-block; padding: 10px 20px; background-color: #0aa3c4;color: #FFF; text-decoration: none; border-radius: 5px; border: none;}
+.back-to-search:hover{ color: #FFF;}

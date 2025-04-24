@@ -18,7 +18,7 @@
             ?>
         </div>
 
-            <div class="property-content">
+            <div class="property-content-single">
                 <?php the_content(); ?>
             </div>
 

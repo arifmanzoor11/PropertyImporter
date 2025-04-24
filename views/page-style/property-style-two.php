@@ -2,7 +2,7 @@
 
 <div class="property-details-container">
 <br>
-
+<a href="#" class="back-to-search" style="display: none;">Back to Search</a>
     <h1 class="property-two-title" style="margin-top: 20px; font-size:2.5rem">
         <?php the_title(); ?>
     </h1>
@@ -43,8 +43,27 @@
                 <?php endif; ?>
                 
             </div>
+            
+            <?php
+            // Fetch and display the 'Bullets' meta field if available
+            $bullets_meta = get_post_meta(get_the_ID(), 'Bullets', true);
+            if (!empty($bullets_meta)) :
+                $bullets = maybe_unserialize($bullets_meta);
+                if (is_array($bullets)) : ?>
+                    <div class="property-bullets">
+                        <h3>Key Points</h3>
+                        <ul>
+                            <?php foreach ($bullets as $bullet) :
+                                if (!empty($bullet['BulletPoint'])) : ?>
+                                    <li><?php echo esc_html($bullet['BulletPoint']); ?></li>
+                                <?php endif;
+                            endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif;
+            endif; ?>
 
-            <div class="property-content">
+            <div class="property-content-single">
             <?php 
             // echo $owners_data = get_post_meta(get_the_ID(), 'Owners', true); 
             $system_detail = get_post_meta(get_the_ID(), 'SystemDetail', true);
@@ -67,24 +86,7 @@
                 <?php the_content(); ?>
             </div>
 
-            <?php
-            // Fetch and display the 'Bullets' meta field if available
-            $bullets_meta = get_post_meta(get_the_ID(), 'Bullets', true);
-            if (!empty($bullets_meta)) :
-                $bullets = maybe_unserialize($bullets_meta);
-                if (is_array($bullets)) : ?>
-                    <div class="property-bullets">
-                        <h3>Key Points</h3>
-                        <ul>
-                            <?php foreach ($bullets as $bullet) :
-                                if (!empty($bullet['BulletPoint'])) : ?>
-                                    <li><?php echo esc_html($bullet['BulletPoint']); ?></li>
-                                <?php endif;
-                            endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif;
-            endif; ?>
+           
         </div>
         <div class="property-column-4">
 

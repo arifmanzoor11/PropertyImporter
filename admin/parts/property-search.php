@@ -55,8 +55,7 @@ function ajax_property_search() {
                         <div style="background: url(<?php echo esc_url($post_thumbnail); ?>) center center / cover; height: 320px;"></div>
                         <div class="card-body">
                             <h5><?php the_title(); ?></h5>
-                            <p>Price: $<?php echo number_format($price); ?></p>
-                            <p>Bedrooms: <?php echo esc_html($bedrooms); ?></p>
+                           <p>Bedrooms: <?php echo esc_html($bedrooms); ?></p>
                             <p>Location: <?php echo esc_html($location); ?></p>
                             <a href="<?php the_permalink(); ?>" class="btn btn-primary">View Details</a>
                         </div>

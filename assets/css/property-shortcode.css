@@ -1,0 +1,24 @@
+
+.reset_filter {
+    background-color: #087188;
+    padding: 15px 30px;
+    margin: 0;
+    border-radius: 32px;
+    font-size: 10px;
+    letter-spacing: 0;
+}
+.slick-prev, .slick-next {
+    z-index: 999;
+}
+.reset_filter:hover {
+    background-color: rgb(5, 62, 75);
+    text-decoration: none;
+    color: aliceblue;
+}
+
+.property-results {
+    margin-top: 20px;
+}
+.property-card{height: 100%;}
+.property-content{border: solid 2px #ccc; height: 100%;}
+.text-container{padding: 5px 10px;}

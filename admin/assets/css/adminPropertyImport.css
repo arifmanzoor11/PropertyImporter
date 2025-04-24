@@ -144,14 +144,14 @@
 }
 
 /* Upload Section */
-.upload, .import {
+/* .upload, .import {
     background: #fff;
     border: 1px solid #c3c4c7;
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
     padding: 20px;
     margin-bottom: 20px;
     border-radius: 4px;
-}
+} */
 
 .upload h1, .import h1 {
     color: #1d2327;
