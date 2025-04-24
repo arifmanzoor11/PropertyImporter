@@ -3,11 +3,13 @@ function show_categories_fn($atts) {
     // Accept comma-separated term IDs and optional taxonomy
     $atts = shortcode_atts([
         'ids' => '', // comma-separated term IDs
-        'taxonomy' => 'property'
+        'taxonomy' => 'property',
+        'custom_archive_slug' => '' // Comma-separated list of URLs
     ], $atts);
 
     $term_ids = array_filter(array_map('intval', explode(',', $atts['ids'])));
     $taxonomy = sanitize_key($atts['taxonomy']);
+    $custom_archive_slug = sanitize_key($atts['custom_archive_slug']);
 
     if (empty($term_ids)) return '';
 
@@ -18,7 +20,11 @@ function show_categories_fn($atts) {
     foreach ($term_ids as $term_id) {
         $term = get_term($term_id);
         if ($term && !is_wp_error($term)) {
+            if($custom_archive_slug){
+                $term_link = home_url($custom_archive_slug)  . '?property_type='. $term->slug;
+            } else {
             $term_link = get_post_type_archive_link($taxonomy)  . '?property_type='. $term->slug;
+            }
           ?>
             <div class="col-lg-4">
                 <a class="filter-term" href="<?php echo esc_url($term_link); ?>" data-term-slug="<?php echo esc_attr($term->slug); ?>">
