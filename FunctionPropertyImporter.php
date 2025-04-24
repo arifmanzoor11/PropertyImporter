@@ -2,7 +2,7 @@
 /*
 Plugin Name: Property Importer
 Description: Imports properties from an external API into a custom post type in WordPress.
-Version: 2.4.4
+Version: 2.5
 Author: Arif M.
 */
 // Prevent direct access to the file
@@ -231,6 +231,7 @@ add_action('admin_enqueue_scripts', 'enqueue_property_type_image_script');
 
 // Add this code after the existing functions
 include_once(plugin_dir_path(__FILE__) . 'inc/property_display_shortcode.php');
+include_once(plugin_dir_path(__FILE__) . 'inc/show_categories_shortcode.php');
 
 
 
@@ -316,6 +317,11 @@ function custom_homepage_filter_script() {
             if (returnUrl) {
                 $('.back-to-search').attr('href', returnUrl);
             }
+            else {
+                // Redirect to fallback archive page if no session data is found
+                window.location.href = '<?php echo esc_url(get_post_type_archive_link('property')); ?>';
+            }
+
         }
     });
     </script>
