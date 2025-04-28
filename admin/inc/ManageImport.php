@@ -49,6 +49,9 @@ function manage_import_page() {
         echo "<h2>Imported Data</h2>";
 
         echo '<form method="post">';
+        echo '<input type="submit" class="button button-primary" name="delete_selected" value="Delete Selected">';
+        echo '<br>';
+        echo '<br>';
         echo '<table class="import-table">';
         echo '<thead>';
         echo '<tr>';
@@ -160,7 +163,6 @@ function manage_import_page() {
 
         echo '</tbody>';
         echo '</table>';
-        echo '<br><input type="submit" class="button button-primary" name="delete_selected" value="Delete Selected">';
         echo '</form>';
     } else {
         echo '<p>No data found.</p>';
