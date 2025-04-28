@@ -167,7 +167,6 @@ function make_api_request($bearer_token, $parameters) {
 // Function to process the API response
 function process_response($response, $wpdb) {
     $body = wp_remote_retrieve_body($response);
-    error_log('Response Body: ' . $body);
 
     // Save the response to a file
     $upload_dir = wp_upload_dir();

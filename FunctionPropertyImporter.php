@@ -2,7 +2,7 @@
 /*
 Plugin Name: Property Importer
 Description: Imports properties from an external API into a custom post type in WordPress.
-Version: 2.5
+Version: 2.5.2
 Author: Arif M.
 */
 // Prevent direct access to the file
@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 include_once(plugin_dir_path(__FILE__) . 'import-main.php');
 include_once(plugin_dir_path(__FILE__) . 'inc/tableDb.php');
 
+// Admin Include
 include_once(plugin_dir_path(__FILE__) . 'admin/inc/PropertiesSettings.php');
 include_once(plugin_dir_path(__FILE__) . 'admin/inc/DeleteProperties.php');
 include_once(plugin_dir_path(__FILE__) . 'admin/inc/ManageImport.php');
@@ -48,7 +49,6 @@ include_once(plugin_dir_path(__FILE__) . 'admin/inc/store/handleOwnersData.php')
 include_once(plugin_dir_path(__FILE__) . 'admin/inc/store/handlePropertyTypes.php');
 include_once(plugin_dir_path(__FILE__) . 'admin/inc/store/handleBulletsPoints.php');
 
-
 // Renders Views
 include_once(plugin_dir_path(__FILE__) . 'views/renders/render_document_media.php');
 include_once(plugin_dir_path(__FILE__) . 'views/renders/render_agent_data.php');
@@ -62,13 +62,12 @@ include_once(plugin_dir_path(__FILE__) . 'views/renders/render_photo_data.php');
 include_once(plugin_dir_path(__FILE__) . 'views/renders/render_photo_style_two.php');
 include_once(plugin_dir_path(__FILE__) . 'views/renders/render_map_view.php');
 include_once(plugin_dir_path(__FILE__) . 'register-post-type.php');
-
-
 include_once(plugin_dir_path(__FILE__) . 'schedule-task.php');
 
 function properties_import_menu() {
     // Add Import Properties page
-    add_menu_page( 'PI Dashboard', 'PI Dashboard', 'manage_options', 'import-properties', 'import_properties_page','dashicons-admin-site-alt' );
+    add_menu_page( 'PI Dashboard', 'PI Dashboard', 'manage_options', 
+    'import-properties', 'import_properties_page','dashicons-admin-site-alt' );
     // Add Delete Properties submenu under Import Properties
     add_submenu_page( 'import-properties', 'Manually Import', 'Manually Import', 'manage_options', 'manually-import', 'manage_import_import' );
     add_submenu_page( 'import-properties', 'Auto Import', 'Auto Import', 'manage_options', 'auto-import', 'manage_auto_import' );
@@ -115,7 +114,6 @@ function easy_propertyimport_load_admin_style() {
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce'    => wp_create_nonce('properties_import_nonce')
     ));
-    
 }
 
 function enqueue_property_styles() {
@@ -138,7 +136,6 @@ function enqueue_property_styles() {
         wp_enqueue_script('property-import-shortcode-js', plugin_dir_url(__FILE__) . 'assets/js/property-import-shortcode.js', array(), null, true);
 
 }
-
 add_action('wp_enqueue_scripts', 'enqueue_property_styles', 20);
 
 function use_plugin_property_archive_template($template) {
@@ -151,7 +148,6 @@ function use_plugin_property_archive_template($template) {
     return $template;
 }
 add_filter('archive_template', 'use_plugin_property_archive_template');
-
 
 function use_plugin_single_property_template($template) {
     if (is_singular('property')) {
@@ -175,7 +171,6 @@ function wpdocs_custom_excerpt_length( $length ) {
 	return 15;
 }
 add_filter( 'excerpt_length', 'wpdocs_custom_excerpt_length', 999 );
-
 
 function add_property_type_image_field($taxonomy) {
     if ($taxonomy !== 'property_type') return;
@@ -232,8 +227,6 @@ add_action('admin_enqueue_scripts', 'enqueue_property_type_image_script');
 // Add this code after the existing functions
 include_once(plugin_dir_path(__FILE__) . 'inc/property_display_shortcode.php');
 include_once(plugin_dir_path(__FILE__) . 'inc/show_categories_shortcode.php');
-
-
 
 add_filter('redirect_canonical', 'disable_redirect_on_custom_page');
 
