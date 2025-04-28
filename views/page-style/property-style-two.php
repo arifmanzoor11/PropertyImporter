@@ -4,7 +4,20 @@
 <br>
 <a href="#" class="back-to-search" style="display: none;">Back to Search</a>
     <h1 class="property-two-title" style="margin-top: 20px; font-size:2.5rem">
-        <?php the_title(); ?>
+       <?php $Address = unserialize(get_post_meta(get_the_ID(), 'Address', true));  
+        $address_parts = [];
+        if (!empty($Address['UPRN']))   $address_parts[] = $Address['UPRN'];
+        if (!empty($Address['BuildingName']))   $address_parts[] = $Address['BuildingName'];
+        if (!empty($Address['SecondaryName']))  $address_parts[] = $Address['SecondaryName'];
+        if (!empty($Address['Street']))         $address_parts[] = $Address['Street'];
+        if (!empty($Address['District']))       $address_parts[] = $Address['District'];
+        if (!empty($Address['Town']))           $address_parts[] = $Address['Town'];
+        if (!empty($Address['County']))         $address_parts[] = $Address['County'];
+        if (!empty($Address['Postcode']))       $address_parts[] = $Address['Postcode'];
+    
+        // Join with commas
+        echo implode(', ', $address_parts);
+       ?>
     </h1>
     <div class="property-details-row">
         <div class="property-column-8">
