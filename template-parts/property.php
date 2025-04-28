@@ -12,10 +12,12 @@
              <div class="text-container">
             <?php 
             $size_data = get_post_meta(get_the_ID(), 'Size', true);
+           
             if (is_serialized($size_data)) {
                 $size_data = unserialize($size_data);
+                
             }
-            
+            $dimension_name = $size_data['Dimension']['Name'];
             // Handle custom display for Min/Max Size
             $min = isset($size_data['MinSize']) && !empty($size_data['MinSize']) ? $size_data['MinSize'] : null;
             $max = isset($size_data['MaxSize']) && !empty($size_data['MaxSize']) ? $size_data['MaxSize'] : null;
@@ -31,7 +33,7 @@
             }
             
             if ($size_label) {
-                echo '<p style="color:#000; margin-bottom:5px;">' . esc_html($size_label) . ' ' . $dimension_name . ' sq ft</p>';
+                echo '<p style="color:#000; margin-bottom:5px;">' . esc_html($size_label) . ' ' . $dimension_name . '</p>';
             }
             if (is_array($size_data)) {
                // echo '<p style="color:#000; margin-bottom:5px;">Total: ' . esc_html($size_data['TotalSize']) . ' ' . esc_html($size_data['Dimension']['Name']) . '</p>';
