@@ -159,7 +159,8 @@ function property_display_shortcode($atts)
         'orderby' => 'date',
         'order' => 'DESC',
         'cat_show' => '',
-        'taxonomy_include' => 'tenure,location,property_type'
+        'excerpt_text_align'=> 'left',
+        'taxonomy_include' => 'property_type,location,tenure'
     ), $atts);
     
     // Get current filter values from URL
@@ -179,62 +180,7 @@ function property_display_shortcode($atts)
                     <button type="button" class="reset_filter" onclick="resetFilters()">Reset Search</button>
                 </div>
                 <div class="select-container">
-                    <select name="max_size" class="dropdown-property filter-select">
-                        <option value="">Max Size</option>
-                        <?php
-                        $size_options = array(1000, 2500, 5000, 10000, 999999);
-                        $size_labels = array(
-                            '1,000 sq ft',
-                            '2,500 sq ft',
-                            '5,000 sq ft',
-                            '10,000 sq ft',
-                            'Over 10,000 sq ft'
-                        );
-                        foreach ($size_options as $index => $size) {
-                            printf(
-                                '<option value="%d" %s>%s</option>',
-                                $size,
-                                selected($current_max_size, $size, false),
-                                $size_labels[$index]
-                            );
-                        }
-                        ?>
-                    </select>
-
-                    <select name="min_size" class="dropdown-property filter-select">    
-                        <option value="">Min Size</option>
-                        <?php
-                        $size_options = array(0, 1000, 2500, 5000, 10000, 999999);
-                        $size_labels = array(
-                            '0 sq ft',
-                            '1,000 sq ft',
-                            '2,500 sq ft',
-                            '5,000 sq ft',
-                            '10,000 sq ft',
-                            'Over 10,000 sq ft'
-                        );
-                        foreach ($size_options as $index => $size) {
-                            printf(
-                                '<option value="%d" %s>%s</option>',
-                                $size,
-                                selected($current_min_size, $size, false),
-                                $size_labels[$index]
-                            );
-                        }
-                        ?>
-                    </select>
-                    <!-- Sort Options -->
-                    <select name="sort" class="dropdown-property filter-select">
-                        <option value="">Sort By</option>
-                        <option value="date-desc" <?php selected($current_sort, 'date-desc'); ?>>Newest First</option>
-                        <option value="date-asc" <?php selected($current_sort, 'date-asc'); ?>>Oldest First</option>
-                        <option value="title-asc" <?php selected($current_sort, 'title-asc'); ?>>Title A-Z</option>
-                        <option value="title-desc" <?php selected($current_sort, 'title-desc'); ?>>Title Z-A</option>
-                        <option value="size-asc" <?php selected($current_sort, 'size-asc'); ?>>Size (Small to Large)</option>
-                        <option value="size-desc" <?php selected($current_sort, 'size-desc'); ?>>Size (Large to Small)</option>
-                    </select>
-                    
-                    <?php
+                <?php
                     // Get taxonomies from taxonomy_include parameter (excluding size for now)
                     $included_taxonomies = array_map('trim', explode(',', $atts['taxonomy_include']));
                     $included_taxonomies = array_filter($included_taxonomies, function($tax) {
@@ -267,13 +213,69 @@ function property_display_shortcode($atts)
                         }
                     }
                     ?>
+                    <!-- Sort Options -->
+                    <select name="sort" class="dropdown-property filter-select">
+                        <option value="">Sort By</option>
+                        <option value="date-desc" <?php selected($current_sort, 'date-desc'); ?>>Newest First</option>
+                        <option value="date-asc" <?php selected($current_sort, 'date-asc'); ?>>Oldest First</option>
+                        <option value="title-asc" <?php selected($current_sort, 'title-asc'); ?>>Title A-Z</option>
+                        <option value="title-desc" <?php selected($current_sort, 'title-desc'); ?>>Title Z-A</option>
+                        <option value="size-asc" <?php selected($current_sort, 'size-asc'); ?>>Size (Small to Large)</option>
+                        <option value="size-desc" <?php selected($current_sort, 'size-desc'); ?>>Size (Large to Small)</option>
+                    </select>
+                    
+                    <select name="min_size" class="dropdown-property filter-select">    
+                        <option value="">Min Size</option>
+                        <?php
+                        $size_options = array(0, 1000, 2500, 5000, 10000, 999999);
+                        $size_labels = array(
+                            '0 sq ft',
+                            '1,000 sq ft',
+                            '2,500 sq ft',
+                            '5,000 sq ft',
+                            '10,000 sq ft',
+                            'Over 10,000 sq ft'
+                        );
+                        foreach ($size_options as $index => $size) {
+                            printf(
+                                '<option value="%d" %s>%s</option>',
+                                $size,
+                                selected($current_min_size, $size, false),
+                                $size_labels[$index]
+                            );
+                        }
+                        ?>
+                    </select>
+
+                    <select name="max_size" class="dropdown-property filter-select">
+                        <option value="">Max Size</option>
+                        <?php
+                        $size_options = array(1000, 2500, 5000, 10000, 999999);
+                        $size_labels = array(
+                            '1,000 sq ft',
+                            '2,500 sq ft',
+                            '5,000 sq ft',
+                            '10,000 sq ft',
+                            'Over 10,000 sq ft'
+                        );
+                        foreach ($size_options as $index => $size) {
+                            printf(
+                                '<option value="%d" %s>%s</option>',
+                                $size,
+                                selected($current_max_size, $size, false),
+                                $size_labels[$index]
+                            );
+                        }
+                        ?>
+                    </select>
+
+                   
                 </div>
             </div>
         <?php endif; ?>
 
         <div class="property-results row">
             <?php
-            
             // Build query args based on URL parameters
             $args = array(
                 'post_type' => 'property',

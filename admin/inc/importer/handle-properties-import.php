@@ -40,7 +40,10 @@ function handle_properties_import_ajax() {
             $post_id = wp_update_post(array(
                 'ID'           => $existing_post_id[0],
                 'post_title'   => $title,
-                'post_content' => isset($property_data['Description']) ? sanitize_text_field($property_data['Description']) : 'No Description',
+                'post_content' => isset($property_data['Description']) 
+                ? nl2br( $property_data['Description']) 
+                : 'No Description',
+                // 'post_content' => isset($property_data['Description']) ? sanitize_text_field($property_data['Description']) : 'No Description',
                 'post_status'  => 'publish'
             ));
 
@@ -57,7 +60,9 @@ function handle_properties_import_ajax() {
             $post_id = wp_insert_post(array(
                 'post_type'    => 'property',
                 'post_title'   => $title,
-                'post_content' => isset($property_data['Description']) ? sanitize_text_field($property_data['Description']) : 'No Description',
+                'post_content' => isset($property_data['Description']) 
+                ? nl2br( $property_data['Description']) 
+                : 'No Description',
                 'post_status'  => 'publish'
             ));
 
@@ -100,6 +105,8 @@ function log_import_meta() {
     $import_id = isset($_POST['import_id']) ? intval($_POST['import_id']) : 0;
     $imported_count = isset($_POST['imported_count']) ? intval($_POST['imported_count']) : 0;
     $updated_count = isset($_POST['updated_count']) ? intval($_POST['updated_count']) : 0;
+    $duration = isset($_POST['duration']) ? wp_strip_all_tags($_POST['duration']) : '';
+
 
     // Ensure the table exists
     $table_name = $wpdb->prefix . 'import_meta';
@@ -124,6 +131,11 @@ function log_import_meta() {
             'meta_key'   => 'file_name',
             'meta_value' => 'Single Property Entry',
         ),
+        array(
+            'import_id'  => $import_id,
+            'meta_key'   => 'duration',
+            'meta_value' => $duration,
+        ),
     );
 
     // Insert each row into the database
@@ -144,6 +156,7 @@ function log_import_meta() {
 
     // Prepare and send a success response
     $response = array('message' => 'Metadata logged successfully.');
-    error_log("Response being sent: " . json_encode($response));
+
+    error_log("Response being sent: " . json_encode($response['message']));
     wp_send_json_success($response);
 }

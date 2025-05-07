@@ -22,3 +22,32 @@
 .property-card{height: 100%;}
 .property-content{border: solid 2px #ccc; height: 100%;}
 .text-container{padding: 5px 10px;}
+
+
+
+/* Default (Mobile First) */
+.select-container {
+    display: grid;
+    flex-direction: row;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+/* Tablets (601px to 1024px) */
+@media only screen and (min-width: 601px) and (max-width: 1024px) {
+    .select-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on tablet */
+    }
+}
+
+/* Desktops (above 1024px) */
+@media only screen and (min-width: 1025px) {
+    .select-container {
+        display: flex;
+        /* grid-template-columns: 1fr 1fr 2.5fr 1.5fr; Your custom layout */
+        gap: 5px;
+        margin-bottom: 25px;
+    }
+}
+.select2.select2-container{width: 100%!important;}

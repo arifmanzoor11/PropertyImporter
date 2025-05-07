@@ -1,6 +1,7 @@
 <div class="col-xl-<?php echo $atts['column'] ?> col-lg-6 mb-4">
     <div class="property-card">
         <div class="property-content">
+        
       <a style="text-decoration:none" href="<?php the_permalink(); ?>">
         <?php $photo_url = get_post_meta(get_the_ID(), 'first_image', true); ?>
         <div style="background: url('<?php echo esc_url($photo_url); ?>'); background-size: cover; background-position: center; height: 320px;"></div>   
@@ -42,8 +43,13 @@
             $unserialized_bullets = maybe_unserialize($bullets_data);
             if (!empty($unserialized_bullets) && is_array($unserialized_bullets)) {
                 $first_bullet = reset($unserialized_bullets);
-                if (isset($first_bullet['BulletPoint'])) {
-                    echo '<p style="color:#000; margin-bottom:5px;">' . esc_html($first_bullet['BulletPoint']) . '</p>';
+                if (isset($first_bullet['BulletPoint'])) { 
+                    $excerpt_align =  $atts['excerpt_text_align']
+                    ?>
+                <p style="color:#000; margin-bottom:5px; text-align: <?php echo $excerpt_align;?>;"> 
+                    <?php echo esc_html($first_bullet['BulletPoint']); ?>
+                </p> 
+                <?php
                 }
             }
             ?>
