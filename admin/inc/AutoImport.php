@@ -2,6 +2,7 @@
 function manage_auto_import_settings() {
     // Check if the form has been submitted
     if (isset($_POST['auto_import_settings'])) {
+        
         // Sanitize and save the input values
         $import_interval = sanitize_text_field($_POST['import_interval']);
         $client_id = sanitize_text_field($_POST['client_id']);
@@ -13,6 +14,7 @@ function manage_auto_import_settings() {
         $property_url = esc_url_raw($_POST['property_url']);
 
         // Save the checkbox settings
+        $delete_before_import = isset($_POST['delete_before_import']) ? 'true' : 'false';
         $additional = isset($_POST['additional']) ? 'true' : 'false';
         $categories = isset($_POST['categories']) ? 'true' : 'false';
         $photos = isset($_POST['photos']) ? 'true' : 'false';
@@ -24,12 +26,10 @@ function manage_auto_import_settings() {
         $auction = isset($_POST['auction']) ? 'true' : 'false';
         $system_details = isset($_POST['system_details']) ? 'true' : 'false';
         $upload_description = isset($_POST['upload_description']) ? 'true' : 'false';
-
         $date_last_let_or_sold = !empty($_POST['date_last_let_or_sold']) ? $_POST['date_last_let_or_sold'] : null;
         $inactive_only = isset($_POST['inactive_only']) ? 'true' : 'false';
         $active_only = isset($_POST['active_only']) ? 'true' : 'false';
         
-
         // Save the settings to the options table
         update_option('auto_import_interval', $import_interval);
         update_option('auto_import_client_id', $client_id);
@@ -48,12 +48,10 @@ function manage_auto_import_settings() {
         update_option('auto_import_auction', $auction);
         update_option('auto_import_system_details', $system_details);
         update_option('auto_import_upload_description', $upload_description);
-
         update_option('auto_import_token_url', $token_url);
         update_option('auto_import_property_url', $property_url);
-
+        update_option('auto_import_delete_before_import', $delete_before_import);
         // Update the options after form submission
-
         update_option('auto_import_date_last_let_or_sold', !empty($date_last_let_or_sold) ? $date_last_let_or_sold : null);
         update_option('auto_import_inactive_only', $inactive_only);
         update_option('auto_import_active_only', $active_only);
@@ -61,6 +59,7 @@ function manage_auto_import_settings() {
         echo '<div class="updated notice"><p>Settings saved successfully!</p></div>';
     } else {
         // Retrieve the current settings
+        $delete_before_import = get_option('auto_import_delete_before_import', '');
         $import_interval = get_option('auto_import_interval', '');
         $client_id = get_option('auto_import_client_id', '');
         $client_secret = get_option('auto_import_client_secret', '');
@@ -80,7 +79,6 @@ function manage_auto_import_settings() {
         $auction = get_option('auto_import_auction', 'true');
         $system_details = get_option('auto_import_system_details', 'true');
         $upload_description = get_option('auto_import_upload_description', 'true');
-
         $date_last_let_or_sold = get_option('auto_import_date_last_let_or_sold', null);
         $inactive_only = get_option('auto_import_inactive_only', false);
         $active_only = get_option('auto_import_active_only', true);
@@ -100,6 +98,18 @@ function manage_auto_import_settings() {
         <form method="post" action="">
             <div id="general" class="tab-content" style="display: block;">
                 <table class="form-table">
+                <tr valign="top">
+                <th scope="row">Delete before import</th>
+                <td>
+                    <label>
+                        <input type="checkbox" name="delete_before_import" value="1"
+                        <?php checked( $delete_before_import, 'true' ); ?> />
+                        Delete all properties
+                    </label>
+                </td>
+            </tr>
+
+
                 <tr valign="top">
                     <th scope="row"><label for="token_url">Token URL</label></th>
                     <td>
@@ -192,9 +202,7 @@ function manage_auto_import_settings() {
             </div>
             <?php submit_button('Save Settings', 'primary', 'auto_import_settings'); ?>
             </form>
-       
     </div>
-
     <script>
         jQuery(document).ready(function($) {
             // Handle tab switching
@@ -210,6 +218,5 @@ function manage_auto_import_settings() {
             });
         });
     </script>
-
     <?php
 }

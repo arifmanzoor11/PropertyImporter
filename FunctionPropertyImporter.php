@@ -2,7 +2,7 @@
 /*
 Plugin Name: Property Importer
 Description: Imports properties from an external API into a custom post type in WordPress.
-Version: 2.5.2
+Version: 2.5.5
 Author: Arif M.
 */
 // Prevent direct access to the file
@@ -247,7 +247,6 @@ function custom_homepage_filter_script() {
     <script>
     jQuery(document).ready(function ($) {
         const returnUrl = sessionStorage.getItem('returnToSearchUrl');
-
         if (returnUrl) {
             // Show the button if return URL exists
             $('.back-to-search').show().on('click', function (e) {
@@ -272,10 +271,8 @@ function custom_homepage_filter_script() {
 
         $('.filter-select').on('change', function () {
             const paramName = $(this).attr('name');
-
             const paramValue = $(this).val();
             const urlParams = new URLSearchParams(window.location.search);
-
             if (paramValue) {
                 urlParams.set(paramName, paramValue);
             } else {
@@ -291,7 +288,6 @@ function custom_homepage_filter_script() {
             // Save scroll position before redirect
             sessionStorage.setItem('scrollPos', window.scrollY); // Store scrolled position
             sessionStorage.setItem('returnToSearchUrl', newUrl); //  Store the filtered URL
-
             // Navigate to new URL
             window.location.href = newUrl;
 
@@ -301,20 +297,17 @@ function custom_homepage_filter_script() {
                  // Save scroll position before redirect
             sessionStorage.setItem('scrollPos', window.scrollY); // Store scrolled position
             sessionStorage.setItem('returnToSearchUrl', paramSlug); //  Store the filtered URL
-
         });
 
-         // If on single page, update "Back to Search" button
         if (isSinglePage) {
             const returnUrl = sessionStorage.getItem('returnToSearchUrl');
             if (returnUrl) {
-                $('.back-to-search').attr('href', returnUrl);
+                $('.back-to-search').attr('href', returnUrl).show();
             }
             else {
-                // Redirect to fallback archive page if no session data is found
-                window.location.href = '<?php echo esc_url(get_post_type_archive_link('property')); ?>';
+                // $('.back-to-search').hide();
+                $('.back-to-search').attr('href', homepageUrl).show();
             }
-
         }
     });
     </script>

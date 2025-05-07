@@ -160,9 +160,9 @@ if (!current_user_can('manage_options')) {
             </div>
         </div>
 
-        <!-- Shortcodes Section -->
+       <!-- Shortcodes Section -->
         <div class="doc-section">
-            <h2><span class="dashicons dashicons-shortcode"></span> Shortcodes</h2>
+            <h2><span class="dashicons dashicons-shortcode"></span> Shortcodes Properties</h2>
             <div class="doc-content">
                 <h3>Available Shortcodes</h3>
                 <div class="shortcode-example">
@@ -170,13 +170,46 @@ if (!current_user_can('manage_options')) {
                     <p>Displays a grid of properties with filtering options</p>
                     <h4>Parameters:</h4>
                     <ul>
-                        <li><code>limit</code>: Number of properties to display (default: 10)</li>
-                        <li><code>type</code>: Filter by property type</li>
-                        <li><code>orderby</code>: Sort by price, date, etc.</li>
+                        <li><code>posts_per_page</code>: Number of properties to display (default: -1 for all)</li>
+                        <li><code>column</code>: Number of columns to display properties (default: 3)</li>
+                        <li><code>slider</code>: Whether to display in a slider (default: false)</li>
+                        <li><code>featured</code>: Whether to show only featured properties (default: false)</li>
+                        <li><code>show_filters</code>: Whether to show filters (default: true)</li>
+                        <li><code>property_type</code>: Filter by property type</li>
+                        <li><code>location</code>: Filter by location</li>
+                        <li><code>min_size</code>: Minimum property size</li>
+                        <li><code>max_size</code>: Maximum property size</li>
+                        <li><code>meta_filters</code>: Additional meta filters</li>
+                        <li><code>orderby</code>: Sort properties by price, date, etc.</li>
+                        <li><code>order</code>: Order direction (default: DESC)</li>
+                        <li><code>cat_show</code>: Categories to show</li>
+                        <li><code>excerpt_text_align</code>: Excerpt text alignment (default: left)</li>
+                        <li><code>taxonomy_include</code>: Taxonomies to include (default: tenure, location, property_type)</li>
                     </ul>
                 </div>
             </div>
         </div>
+
+        <!-- Shortcodes Section -->
+        <div class="doc-section">
+            <h2><span class="dashicons dashicons-shortcode"></span> Shortcodes Categories</h2>
+            <div class="doc-content">
+                <h3>Available Shortcodes</h3>
+                <div class="shortcode-example">
+                    <code>[show_categories]</code>
+                    <p>Displays a list of categories based on given term IDs, taxonomy, and optional custom archive slugs</p>
+                    <h4>Parameters:</h4>
+                    <ul>
+                        <li><code>ids</code>: Comma-separated term IDs (required)</li>
+                        <li><code>taxonomy</code>: Taxonomy to filter by (default: 'property')</li>
+                        <li><code>custom_archive_slug</code>: Optional comma-separated list of custom archive URLs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+
     </div>
 </div>
 
