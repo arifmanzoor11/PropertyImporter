@@ -10,7 +10,6 @@ function get_bearer_token() {
     $token_url = get_option('auto_import_token_url', '');
     $client_id =  get_option('auto_import_client_id', '');;
     $client_secret =  get_option('auto_import_client_secret', '');
-
     $grant_type = 'client_credentials';
 
     // Validate required values
@@ -46,63 +45,6 @@ function get_bearer_token() {
     }
 
     return false;
-}
-
-
-// Main function to download and import properties file via POST method
-function download_and_import_properties_file() {
-    global $wpdb;
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        error_log('[Property Import] Request must be POST.');
-        return 'Error: Invalid request method. Please use POST.';
-    }
-
-    // Step 1: Get Bearer Token
-    $bearer_token = get_bearer_token();
-    if (!$bearer_token) {
-        error_log('[Property Import] Failed to retrieve Bearer token.');
-        return 'Error: Could not retrieve Bearer token.';
-    }
-
-    // Step 2: Define default parameters
-    $parameters = define_parameters();
-
-    // Step 3: Allow testing with POST parameter overrides
-    if (!empty($_POST['override_params'])) {
-        $override_data = json_decode(stripslashes($_POST['override_params']), true);
-        if (json_last_error() === JSON_ERROR_NONE) {
-            $parameters = array_merge($parameters, $override_data);
-            error_log('[Property Import] Parameters overridden for testing: ' . print_r($parameters, true));
-        } else {
-            error_log('[Property Import] Invalid JSON in override_params: ' . $_POST['override_params']);
-            return 'Error: Invalid override_params JSON.';
-        }
-    }
-
-    // Step 4: Make the API request
-    $response = make_api_request($bearer_token, $parameters);
-    if (is_wp_error($response)) {
-        error_log('[Property Import] API request failed: ' . $response->get_error_message());
-        return 'Error: API request failed.';
-    }
-
-    // Step 5: Process response and save file
-    $file_path = process_response($response, $wpdb);
-    if (!$file_path || !file_exists($file_path)) {
-        error_log('[Property Import] Failed to process response or file not found.');
-        return 'Error: Could not process API response or locate file.';
-    }
-
-    // Step 6: Trigger import
-    $import_result = trigger_import_process($file_path, $wpdb);
-    if (!$import_result) {
-        error_log('[Property Import] Import process failed.');
-        return 'Error: Import process could not be triggered.';
-    }
-
-    error_log('[Property Import] Import successfully triggered.');
-    return 'Success: Property feed downloaded and import process started.';
 }
 
 // Function to define API request parameters
@@ -141,8 +83,6 @@ function define_parameters() {
 
     return $options;
 }
-
-
 
 // Function to make the API request
 function make_api_request($bearer_token, $parameters) {
@@ -209,21 +149,21 @@ function insert_metadata($import_id, $wpdb) {
     }
 }
 
-// Function to trigger the import process
 function trigger_import_process($file_path, $wpdb) {
     $file_url = wp_upload_dir()['baseurl'] . '/' . basename($file_path);
-    $import_id = $wpdb->insert_id; // Get last insert ID
+    $import_id = $wpdb->insert_id;
 
-    // Return a JSON response
-    wp_send_json_success(array(
+    $response = array(
         'file_url' => $file_url,
         'import_id' => $import_id,
         'message' => 'Property feed downloaded and import process started.'
-    ));
+    );
 
-    error_log('Property feed downloaded and import process started for file: ' . $file_path);
+    wp_send_json_success($response);
+
+    // Add this if execution might continue (but it won’t after wp_send_json_*)
+    return $response;
 }
-
 
 // Create an admin page with a button to trigger the import manually
 function manage_auto_import() {
@@ -379,6 +319,106 @@ function onImportComplete(import_id, imported_count, updated_count) {
     <?php
 }
 
+function delete_all_property_posts() {
+    if ( ! current_user_can( 'delete_posts' ) ) {
+        return new WP_Error( 'permission_denied', 'You do not have permission to delete posts.' );
+    }
+
+    $property_posts = get_posts(array(
+        'post_type'      => 'property',
+        'post_status'    => 'any',
+        'numberposts'    => -1,
+        'fields'         => 'ids',
+    ));
+
+    if ( empty($property_posts) ) {
+        return new WP_Error( 'no_posts', 'No property posts found.' );
+    }
+
+    foreach ($property_posts as $post_id) {
+        wp_delete_post($post_id, true);
+    }
+    error_log('All property posts deleted.');
+    return 'All property posts deleted.';
+}
+
+
+// Main function to download and import properties file via POST method
+function download_and_import_properties_file() {
+    global $wpdb;
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        error_log('[Property Import] Request must be POST.');
+        return 'Error: Invalid request method. Please use POST.';
+    }
+
+    // Step 1: Get Bearer Token
+    $bearer_token = get_bearer_token();
+    if (!$bearer_token) {
+        error_log('[Property Import] Failed to retrieve Bearer token.');
+        return 'Error: Could not retrieve Bearer token.';
+    }
+
+    // Step 2: Define default parameters
+    $parameters = define_parameters();
+
+    // Step 3: Allow testing with POST parameter overrides
+    if (!empty($_POST['override_params'])) {
+        $override_data = json_decode(stripslashes($_POST['override_params']), true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $parameters = array_merge($parameters, $override_data);
+            error_log('[Property Import] Parameters overridden for testing: ' . print_r($parameters, true));
+        } else {
+            error_log('[Property Import] Invalid JSON in override_params: ' . $_POST['override_params']);
+            return 'Error: Invalid override_params JSON.';
+        }
+    }
+
+    // Step 4: Make the API request
+    $response = make_api_request($bearer_token, $parameters);
+    if (is_wp_error($response)) {
+        error_log('[Property Import] API request failed: ' . $response->get_error_message());
+        return 'Error: API request failed.';
+    }
+
+    // Step 5: Process response and save file
+    $file_path = process_response($response, $wpdb);
+    if (!$file_path || !file_exists($file_path)) {
+        error_log('[Property Import] Failed to process response or file not found.');
+        return 'Error: Could not process API response or locate file.';
+    }
+
+   // Step 6: Delete all properties
+    $delete_before_import = get_option('auto_import_delete_before_import', '');
+    if ($delete_before_import == 'true') {
+
+        $delete_all_property_posts = delete_all_property_posts();
+
+        if (is_wp_error($delete_all_property_posts)) {
+            $error_message = $delete_all_property_posts->get_error_message();
+
+            // Skip return only if the message matches "No property posts found."
+            if (stripos($error_message, 'No property posts found.') === false) {
+                error_log('[Property Import] Delete failed: ' . $error_message);
+                return 'Error: Delete failed.';
+            } else {
+                error_log('[Property Import] No property posts found to delete. Continuing import...');
+            }
+        }
+    }
+
+    
+    // Step 7: Trigger import
+    $import_result = trigger_import_process($file_path, $wpdb);
+    if (!$import_result) {
+        error_log('[Property Import] Import process failed.');
+        return 'Error: Import process could not be triggered.';
+    }
+
+    error_log('[Property Import] Import successfully triggered.');
+
+    return 'Success: Property feed downloaded and import process started.';
+}
 
 // Handle the manual import via AJAX POST request
 function manual_properties_import() {
@@ -394,4 +434,3 @@ function manual_properties_import() {
 }
 
 add_action('wp_ajax_manual_properties_import', 'manual_properties_import');
-
