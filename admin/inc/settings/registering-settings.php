@@ -11,9 +11,7 @@ function register_custom_settings()
     register_setting('general_settings', 'container_width');
     register_setting('general_settings', 'enable_image_import');
     register_setting('general_settings', 'enable_document_import');
-    register_setting('general_settings', 'custom_code'); // Register custom code input
-    register_setting('general_settings', 'reg_code'); // Register custom code input
-    register_setting('general_settings', 'forgot_pw_code'); // Register custom code input
+    register_setting('general_settings', 'login_auth_to_view_property'); // Register custom code input
 
     // Add General Settings Section
     add_settings_section(
@@ -33,23 +31,9 @@ function register_custom_settings()
     );
 
     add_settings_field(
-        'custom_code',
-        'Login ShortCode',
-        'custom_code_callback',
-        'general_settings',
-        'general_settings_section',
-    );
-    add_settings_field(
-        'reg_code',
-        'Registration ShortCode',
-        'custom_reg_code_callback',
-        'general_settings',
-        'general_settings_section',
-    );
-    add_settings_field(
-        'forgot_pw_code',
-        'Forgot Password ShortCode',
-        'forgot_pw_shortcodecode_callback',
+        'login_auth_to_view_property',
+        'Auth Shortcode',
+        'auth_shortcode_callback',
         'general_settings',
         'general_settings_section',
     );

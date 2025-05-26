@@ -53,6 +53,15 @@ function render_map_view($post_id) {
             src="https://www.openstreetmap.org/export/embed.html?bbox=' . $bbox['min_lon'] . ',' . $bbox['min_lat'] . ',' . $bbox['max_lon'] . ',' . $bbox['max_lat'] . '&layer=mapnik&marker=' . $latitude . ',' . $longitude . '"
             allowfullscreen>
         </iframe>';
+        // echo '<iframe
+        //     width="100%"
+        //     height="400px"
+        //     frameborder="0"
+        //     style="border:0"
+        //     src="https://www.google.com/maps?q=' . $latitude . ',' . $longitude . '&z=15&output=embed"
+        //     allowfullscreen>
+        // </iframe>';
+
     }
 
     echo '</div>';

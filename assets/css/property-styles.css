@@ -4,6 +4,7 @@
     /* background-color: #f5f5f5; */
 }
 
+
 .properties-list {
     display: flex;
     flex-wrap: wrap;
@@ -210,6 +211,12 @@ p {
     margin-right: auto;
     margin-left: auto;
 }
+
+@media (max-width: 768px) {
+    .mySlides{height: auto!important;
+        aspect-ratio: 4 / 3 auto;}
+}
+
 @media (min-width: 576px) {
     .property-details-container {
         max-width: 540px;

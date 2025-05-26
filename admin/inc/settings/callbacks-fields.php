@@ -26,9 +26,9 @@ function property_style_callback() {
 }
 
 // Custom Code Input Callback
-function custom_code_callback() {
-    $custom_code = get_option('custom_code', '');
-    echo "<textarea style='min-width: 25rem;' name='custom_code' rows='5' style='width:100%'>" . esc_textarea($custom_code) . "</textarea><br><small>If you enter a shortcode here, it will override the built-in login page used in the content protection page.</small>";
+function auth_shortcode_callback() {
+    $login_auth_to_view_property = get_option('login_auth_to_view_property', '');
+    echo "<textarea style='min-width: 25rem;' name='login_auth_to_view_property' rows='5' style='width:100%'>" . esc_textarea($login_auth_to_view_property) . "</textarea><br><small>If you enter a shortcode here, it will not allow user to view the property unless the user is logged in.</small>";
 }
 
 // Custom Code Input Callback

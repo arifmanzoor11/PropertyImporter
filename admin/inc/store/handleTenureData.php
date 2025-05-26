@@ -56,12 +56,12 @@ function handleTenureData($post_id, $property_data) {
     wp_set_post_terms($post_id, array(), 'tenure');
 
     // Add to 'tenure_status' taxonomy based on ForSale and ForRent values
-    if ($property_data['Tenure']['ForSale'] === 'true') { // Check for boolean true
+    if ($property_data['Tenure']['ForSale'] === true) { // Check for boolean true
         wp_set_object_terms($post_id, 'Sale', 'tenure');
         update_post_meta($post_id, 'Price', $tenure_data['ForSalePriceFrom']);
     }  
     
-    if ($property_data['Tenure']['ForRent'] === 'true') { // Check for boolean true
+    if ($property_data['Tenure']['ForRent'] === true) { // Check for boolean true
         wp_set_object_terms($post_id, 'Rent', 'tenure');
         update_post_meta($post_id, 'Price', $tenure_data['ForRentPriceFrom']);
     }

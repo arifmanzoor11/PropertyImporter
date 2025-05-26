@@ -52,7 +52,7 @@ function ajax_property_search() {
             <div class="col mb-5 col-md-4">
                 <div class="card">
                     <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>" style="text-decoration: none;">
-                        <div style="background: url(<?php echo esc_url($post_thumbnail); ?>) center center / cover; height: 320px;"></div>
+                        <!-- <div style="background: url(<?php// echo esc_url($post_thumbnail); ?>) center center / cover; height: 320px;"></div> -->
                         <div class="card-body">
                             <h5><?php the_title(); ?></h5>
                            <p>Bedrooms: <?php echo esc_html($bedrooms); ?></p>
