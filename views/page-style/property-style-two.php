@@ -46,6 +46,12 @@
                             <?php echo esc_html($market_status_meta); ?>
                         </span>
                         <br>
+
+                    <?php elseif ($market_status_meta == 'Let (show on web)'): ?>
+                        <span class="market-status-badge" style="background: orange; line-height: 1.5; padding: 10px 20px; border-radius: 5px; color: white; font-size: 13px;">
+                            Let
+                        </span>
+                        <br>
                 
                     <?php else: ?>
                         <span class="market-status-badge" style="background: black; line-height: 1.5; padding: 10px 20px; border-radius: 5px; color: white; font-size: 13px;">

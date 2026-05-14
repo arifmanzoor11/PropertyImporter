@@ -2,7 +2,7 @@
 /*
 Plugin Name: Property Importer
 Description: Imports properties from an external API into a custom post type in WordPress.
-Version: 2.5.8
+Version: 2.6.1
 Author: Arif M.
  * Requires at least: 6.0
  * Tested up to: 6.8.1
@@ -324,82 +324,118 @@ function custom_homepage_filter_script() {
     <?php
 }
 
-
-
-
-
-
 function my_custom_cron_intervals($schedules) {
-    // Get the interval from database
-    
-    // Create an array of allowed intervals
-    $allowed_intervals = array(
-        '3600' => 'Hourly',
-        '7200' => 'Two Hours',
-        '14400' => 'Four Hours',
-        '21600' => 'Six Hours',
-        '43200' => 'Twice Daily',
-        '86400' => 'Daily',
-        '604800' => 'Weekly'
-    );
-    
-    $import_interval = get_option('auto_import_interval', '14400'); // Default to 4 hours if not set
-    $import_interval = in_array($import_interval, array_keys($allowed_intervals)) ? $import_interval : '14400';
 
-    // Add the custom interval from database
-    $schedules['custom_interval'] = array(
-        'interval' => intval($import_interval),
-        'display' => __($allowed_intervals[$import_interval] ?? 'Custom Interval')
-    );
+    $allowed_intervals = [
+        '3600'   => 'Hourly',
+        '7200'   => 'Two Hours',
+        '14400'  => 'Four Hours',
+        '21600'  => 'Six Hours',
+        '43200'  => 'Twice Daily',
+        '86400'  => 'Daily',
+        '604800' => 'Weekly'
+    ];
+
+    $interval = get_option('auto_import_interval', '14400');
+
+    if (!isset($allowed_intervals[$interval])) {
+        $interval = '14400';
+    }
+
+    $schedules['custom_interval'] = [
+        'interval' => (int) $interval,
+        'display'  => $allowed_intervals[$interval]
+    ];
 
     return $schedules;
 }
+
 add_filter('cron_schedules', 'my_custom_cron_intervals');
 
 
-
-
-// Function to be called by the cron job
+/**
+ * Cron callback
+ */
 function my_cron_job_function() {
-    error_log('Cron executed at: ' . current_time('mysql'));
+
+    error_log('Property cron executed: ' . current_time('mysql'));
+
     download_and_import_properties_file();
 }
+
 add_action('property_import_cron_hook', 'my_cron_job_function');
 
-// Schedule an event if it's not already scheduled
-function my_cron_schedule_activation() {
-    // First, clear any existing schedules
-    $timestamp = wp_next_scheduled('property_import_cron_hook');
-    if ($timestamp) {
-        wp_unschedule_event($timestamp, 'property_import_cron_hook');
-    }
-    
-    // Check if custom_interval exists
-    $schedules = apply_filters('cron_schedules', []);
-    if (!isset($schedules['custom_interval'])) {
-        error_log('Custom interval NOT registered!');
-    } else {
-        error_log('Custom interval is set to: ' . $schedules['custom_interval']['interval']);
-    }
-    
-    // Only schedule if not already scheduled
+
+/**
+ * Create cron
+ */
+function my_schedule_property_cron() {
+
     if (!wp_next_scheduled('property_import_cron_hook')) {
-        wp_schedule_event(time(), 'custom_interval', 'property_import_cron_hook');
+
+        $scheduled = wp_schedule_event(
+            time() + 60,
+            'custom_interval',
+            'property_import_cron_hook'
+        );
+
+        if ($scheduled) {
+            error_log('Property cron scheduled successfully');
+        } else {
+            error_log('Property cron FAILED to schedule');
+        }
     }
 }
-register_activation_hook(__FILE__, 'my_cron_schedule_activation');
 
-// Clear scheduled event upon plugin deactivation
-function my_cron_schedule_deactivation() {
-    $timestamp = wp_next_scheduled('property_import_cron_hook');
-    wp_unschedule_event($timestamp, 'property_import_cron_hook');
+
+/**
+ * Plugin activation
+ */
+function property_importer_activate_cron() {
+
+    // ensure schedules exist
+    my_custom_cron_intervals([]);
+
+    // create cron
+    my_schedule_property_cron();
 }
-register_deactivation_hook(__FILE__, 'my_cron_schedule_deactivation');
 
-// Function to update cron schedule when interval is changed
+register_activation_hook(__FILE__, 'property_importer_activate_cron');
+
+
+/**
+ * Plugin deactivation
+ */
+function property_importer_deactivate_cron() {
+
+    wp_clear_scheduled_hook('property_import_cron_hook');
+
+    error_log('Property cron cleared');
+}
+
+register_deactivation_hook(__FILE__, 'property_importer_deactivate_cron');
+
+
+/**
+ * Self healing fallback
+ */
+add_action('init', function () {
+
+    if (!wp_next_scheduled('property_import_cron_hook')) {
+
+        my_schedule_property_cron();
+    }
+});
+
+
+/**
+ * Rebuild cron if interval changes
+ */
 function update_cron_schedule() {
-    // This will force the schedule to be recreated with the new interval
-    my_cron_schedule_deactivation();
-    my_cron_schedule_activation();
+
+    wp_clear_scheduled_hook('property_import_cron_hook');
+
+    my_schedule_property_cron();
 }
+
 add_action('update_option_auto_import_interval', 'update_cron_schedule');

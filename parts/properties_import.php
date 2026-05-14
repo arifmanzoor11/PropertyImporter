@@ -16,7 +16,23 @@ function properties_import($file_url, $import_id) {
     if (is_string($file_url)) {
         // Check if it looks like a URL
         if (filter_var($file_url, FILTER_VALIDATE_URL)) {
-            $response = wp_remote_get($file_url);
+            // $response = wp_remote_get($file_url);
+
+            // Configure SSL verification setting (change to false in dev if needed)
+            $sslverify = true; // Set to false to disable SSL verification (e.g., for local/dev only)
+
+            // Optional: Path to custom CA certificate bundle
+            $ssl_cert_path = plugin_dir_path(__FILE__) . 'cacert.pem';
+
+            // Log SSL verification state
+            error_log("[IMPORT] SSL Verification is " . ($sslverify ? 'ENABLED' : 'DISABLED'));
+
+            $response = wp_remote_get($file_url, array(
+                'timeout'           => 20,
+                'sslverify'         => $sslverify,
+                'sslcertificates'   => file_exists($ssl_cert_path) ? $ssl_cert_path : null,
+            ));
+
             if (is_wp_error($response)) {
                 $error_msg = $response->get_error_message();
                 error_log("[IMPORT ERROR] Failed to fetch URL: $error_msg");

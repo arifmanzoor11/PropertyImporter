@@ -129,7 +129,6 @@
                         }
                     }
                 }
-
                 if (get_post_meta(get_the_ID(), 'property_price', true)) : ?>
                     <p><strong>Price:</strong> <?php echo esc_html(get_post_meta(get_the_ID(), 'property_price', true)); ?></p>
                 <?php endif; ?>

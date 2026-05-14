@@ -1,14 +1,12 @@
 <?php
-include_once(plugin_dir_path(__FILE__) . 'parts/define_parameters.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/get_bearer_token.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/get_bearer_token.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/make_api_request.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/process_response.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/insert_metadata.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/trigger_import_process.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/properties_import.php');
-include_once(plugin_dir_path(__FILE__) . 'parts/delete_all_property_posts.php');
-// Create an admin page with a button to trigger the import manually
+include_once plugin_dir_path(__FILE__) . 'parts/define_parameters.php';
+include_once plugin_dir_path(__FILE__) . 'parts/get_bearer_token.php'; // only once
+include_once plugin_dir_path(__FILE__) . 'parts/make_api_request.php';
+include_once plugin_dir_path(__FILE__) . 'parts/process_response.php';
+include_once plugin_dir_path(__FILE__) . 'parts/insert_metadata.php';
+include_once plugin_dir_path(__FILE__) . 'parts/trigger_import_process.php';
+include_once plugin_dir_path(__FILE__) . 'parts/properties_import.php';
+include_once plugin_dir_path(__FILE__) . 'parts/delete_all_property_posts.php';
 function manage_auto_import() {
     ?>
    <div class="wrap">
@@ -58,19 +56,8 @@ function manage_auto_import() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Pass the file_url and import_id from the PHP response to the form submission handler
-                        // var formData = {
-                        //     file_url: response.data.file_url,
-                        //     import_id: response.data.import_id
-                        // };
-
-                        //  // Call the submission function directly
-                        // submitImportForm(formData);
                         jQuery('#response').html('Import Compeleted...');
                         jQuery("#loading").hide();
-
-
-                        // jQuery('#import-status').html(response.data.message);
                     } else {
                         jQuery('#response').html('Import failed: ' + response.data.message);
                     }
@@ -82,110 +69,7 @@ function manage_auto_import() {
         });
     });
 
-//     function submitImportForm(formData) {
-//     var fileUrl = formData.file_url; 
-//     var import_id = formData.import_id;
-//     var imported_count = 0; // Initialize imported count
-//     var updated_count = 0; // Initialize updated count
-//     if (fileUrl) {
-//         // Fetch the JSON content from the file URL
-//         jQuery.getJSON(fileUrl, function(data) {
-//             if (data && Array.isArray(data)) {
-//                 // Function to process entries sequentially
-//                 function processNextEntry(index) {
-//                     if (index >= data.length) {
-//                         // If all entries have been processed, show completion message
-//                         jQuery("#response").append('<p>Import complete. Processed ' + data.length + ' entries.</p>');
-//                         jQuery("#loading").hide();
 
-//                         // Call the function after import is completed
-//                         onImportComplete(import_id, imported_count, updated_count); // Pass necessary data
-//                         return;
-//                     }
-
-//                     var entry = data[index];
-//                     var formData = {
-//                         action: 'properties_import',
-//                         import_id: import_id,
-//                         property_data: entry // Each entry from the JSON file
-//                     };
-
-//                     // Send each entry via AJAX
-//                     jQuery.ajax({
-//                         url: "<?php //echo admin_url('admin-ajax.php'); ?>",
-//                         type: "POST",
-//                         data: formData,
-//                         xhr: function() {
-//                             var xhr = new window.XMLHttpRequest();
-//                             xhr.onprogress = function(e) {
-//                                 if (e.lengthComputable) {
-//                                     jQuery("#response").append(e.target.responseText); // Real-time updates
-//                                 }
-//                             };
-//                             return xhr;
-//                         },
-//                         beforeSend: function() {
-//                             if (index === 0) {
-//                                 jQuery("#response").html(''); // Clear previous responses
-//                                 jQuery("#loading").show(); // Show the loading spinner on first request
-//                             }
-//                         },
-//                         success: function(response) {
-//                             if (response && response.success) {
-//                                 jQuery("#response").append('<p>Entry ' + (index + 1) + ': ' + response.data.message + '</p>');
-//                                 imported_count++; // Increment imported count
-//                                 // Proceed to the next entry
-//                                 processNextEntry(index + 1);
-//                             } else {
-//                                 alert('Error with entry ' + (index + 1) + ': ' + (response.data.message || 'Unknown error'));
-//                                 processNextEntry(index + 1); // Proceed to the next entry even on error
-//                             }
-//                         },
-//                         error: function(xhr, status, error) {
-//                             console.log('Error with entry ' + (index + 1) + ' - ' + xhr.status + ': ' + xhr.statusText);
-//                             alert('Error with entry ' + (index + 1) + ' - ' + xhr.statusText);
-//                             processNextEntry(index + 1); // Continue even after an error
-//                         }
-//                     });
-//                 }
-
-//                 // Start processing the first entry
-//                 processNextEntry(0);
-//             } else {
-//                 alert("The file does not contain valid data");
-//             }
-//         }).fail(function() {
-//             alert("Failed to retrieve the file. Please check the URL.");
-//         });
-//     } else {
-//         alert("No file URL found");
-//     }
-// }
-
-// // Function to be called after all imports are done
-// function onImportComplete(import_id, imported_count, updated_count) {
-//     // Add entries to the database
-//     jQuery.ajax({
-//         url: "<?php //echo admin_url('admin-ajax.php'); ?>",
-//         type: "POST",
-//         data: {
-//             action: 'log_import_meta',
-//             import_id: import_id,
-//             imported_count: imported_count,
-//             updated_count: updated_count
-//         },
-//         success: function(response) {
-//             if (response.success) {
-//                 console.log("Import metadata logged successfully.");
-//             } else {
-//                 console.error("Failed to log import metadata: " + response.data.message);
-//             }
-//         },
-//         error: function(xhr, status, error) {
-//             console.error("Error logging import metadata: " + error);
-//         }
-//     });
-// }
     </script>
     <?php
 }

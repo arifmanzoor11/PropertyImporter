@@ -1,4 +1,5 @@
 <?php
+
 function handlePropertyTypes($post_id, $property_data) {
     // Remove all existing 'property_type' taxonomy terms
     wp_set_post_terms($post_id, array(), 'property_type');
@@ -9,7 +10,7 @@ function handlePropertyTypes($post_id, $property_data) {
 
         // Loop through each property type and collect the names directly
         foreach ($property_data['PropertyTypes'] as $type) {
-            if (!empty($type)) {
+            if (!empty($type['Name'])) {
                 $property_types[] = $type['Name'];
             }
         }
@@ -18,5 +19,12 @@ function handlePropertyTypes($post_id, $property_data) {
         if (!empty($property_types)) {
             wp_set_object_terms($post_id, $property_types, 'property_type');
         }
+
+        // Also store the property types in post meta as a serialized array
+        update_post_meta($post_id, 'property_type_names', $property_types);
+    } else {
+        // If there are no property types, ensure the meta is cleared
+        delete_post_meta($post_id, 'property_type_names');
     }
 }
+
